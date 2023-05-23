@@ -236,11 +236,11 @@ namespace TamagotchiAPI.controllers
                 return NotFound(new { Message = "No pet found!" });
             }
 
-            //Creates new playtime object
+            //Creates new scolding object
             var newScolding = new Scolding();
-            //Matches the playtime object PetId to the petId found earlier
+            //Matches the scolding object PetId to the petId found earlier
             newScolding.PetId = pet.Id;
-            //Makes the pet happier and hungrier
+            //Makes the pet sadder
             pet.HappinessLevel -= 5;
 
             _context.Scoldings.Add(newScolding);
