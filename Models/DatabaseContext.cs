@@ -14,7 +14,10 @@ namespace TamagotchiAPI.Models
         private static bool LOG_SQL_STATEMENTS_IN_DEVELOPMENT = false;
 
         // Add database tables here
-
+        public DbSet<Pet> Pets { get; set; }
+        public DbSet<Playtime> Playtimes { get; set; }        
+        public DbSet<Feeding> Feedings { get; set; }
+        public DbSet<Scolding> Scoldings { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -30,7 +33,9 @@ namespace TamagotchiAPI.Models
                 var defaultConnectionString = $"server=localhost;database={DEVELOPMENT_DATABASE_NAME}";
 
                 var conn = databaseURL != null ? ConvertPostConnectionToConnectionString(databaseURL) : defaultConnectionString;
-
+                
+                AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+                
                 optionsBuilder.UseNpgsql(conn);
             }
         }
