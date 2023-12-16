@@ -125,7 +125,7 @@ namespace TamagotchiAPI.controllers
         public async Task<ActionResult<Pet>> PostPet(Pet pet)
         {
             //Automatically sets values for pet to be at 0 and birthday to be current
-            pet.Birthday = DateTime.Now;
+            pet.Birthday = DateOnly.FromDateTime(DateTime.Now);
             pet.HappinessLevel = 0;
             pet.HungerLevel = 0;
             // Indicate to the database context we want to add this new record
@@ -176,12 +176,17 @@ namespace TamagotchiAPI.controllers
                 // There wasn't a pet with that id so return a `404` not found
                 return NotFound(new { Message = "No pet found!" });
             }
+            //Double checks if pet is even alive
+            if(pet.IsDead == true)
+            {
+                return BadRequest(new {Message = $"{pet.Name} is no longer alive 🕯️ you cannot feed it anymore."});
+            }
             //Checks if pet is even hungry
             if(pet.HungerLevel < 3)
             {
                 return BadRequest(new { Message = $"{pet.Name} is not currently hungry, they will not accept your food right now."});
             }
-            
+
             //Will only affect pets happiness and hunger levels if tamagotchi is actually hungry
             //Creates a new feeding object
             var feeding = new Feeding();
@@ -191,6 +196,7 @@ namespace TamagotchiAPI.controllers
             //Adds happiness and subtracts hunger
             pet.HappinessLevel += 5;
             pet.HungerLevel -= 3;
+            pet.LastInteractedWithDate = DateTime.UtcNow;
 
             _context.Feedings.Add(feeding);
             await _context.SaveChangesAsync();
@@ -198,7 +204,7 @@ namespace TamagotchiAPI.controllers
             return Ok(feeding);
         }
         //Create a new Playtime object and adds happiness and hunger to it
-       [HttpPost("{id}/Playtimes")]
+        [HttpPost("{id}/Playtimes")]
         public async Task<ActionResult<Playtime>> PlayWithPet(int id)
         {
             //Searches for pet that matches Id in query
@@ -209,6 +215,11 @@ namespace TamagotchiAPI.controllers
                 // There wasn't a pet with that id so return a `404` not found
                 return NotFound(new { Message = "No pet found!" });
             }
+            //Double checks if pet is even alive
+            if(pet.IsDead == true)
+            {
+                return BadRequest(new {Message = $"{pet.Name} is no longer alive 🕯️ you cannot play with it anymore."});
+            }
 
             //Creates new playtime object
             var newPlayTime = new Playtime();
@@ -217,6 +228,7 @@ namespace TamagotchiAPI.controllers
             //Makes the pet happier and hungrier
             pet.HappinessLevel += 5;
             pet.HungerLevel += 3;
+            pet.LastInteractedWithDate = DateTime.UtcNow;
 
             _context.Playtimes.Add(newPlayTime);
             await _context.SaveChangesAsync();
@@ -235,13 +247,19 @@ namespace TamagotchiAPI.controllers
                 // There wasn't a pet with that id so return a `404` not found
                 return NotFound(new { Message = "No pet found!" });
             }
+            //Double checks if pet is even alive
+            if(pet.IsDead == true)
+            {
+                return BadRequest(new {Message = $"{pet.Name} is no longer alive 🕯️ stop being mean to your pets 😤 "});
+            }
 
-            //Creates new playtime object
+            //Creates new scolding object
             var newScolding = new Scolding();
-            //Matches the playtime object PetId to the petId found earlier
+            //Matches the scolding object PetId to the petId found earlier
             newScolding.PetId = pet.Id;
-            //Makes the pet happier and hungrier
+            //Makes the pet sadder 😢
             pet.HappinessLevel -= 5;
+            //pet.LastInteractedWithDate = DateTime.UtcNow;
 
             _context.Scoldings.Add(newScolding);
             await _context.SaveChangesAsync();
