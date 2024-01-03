@@ -55,7 +55,3 @@ If you are using a third party API you can set any configuration as such:
 - Browse for your repository ![github](./docs/heroku3.png)
 - Connect to your repository ![github](./docs/heroku4.png)
 - Enable automatic deploys ![github](./docs/heroku5.png)
-
-## PROTIP:
-
-When you are complete with the project and have turned it in to your instructor, update README.md with details about the assignment.
